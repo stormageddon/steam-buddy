@@ -7,12 +7,14 @@ var usersToCheck = ['76561198024956371'/*ethan*/, '76561198081408345'/*me*/, '76
 var currOnline = [];
 
 //var hostPath = '127.0.0.1:3000';
-var sessionToken = 'ba716392dca54875977ef32f11a41165174f0dd61c13a79a2ec7bf59dd44509387b2dc8c1ab127ca79e250153f08cb52';
+//var sessionToken = 'ba716392dca54875977ef32f11a41165174f0dd61c13a79a2ec7bf59dd44509387b2dc8c1ab127ca79e250153f08cb52';
 //var sessionToken = '4a758c0306e81c61f04f8cb367f602ef42bdad20860727a20fe6d417a858a45e51e53ff087b9e782e1791b60727c74e2'
+
+var sessionToken = '7de545895cab3458527d079a6b3627e79f8898bfaa3dbc9898b78ff6e5077444d88e6ff9c9182262b4a2f6cdeb1a4d53' // steam_buddy session token
 var io = require('socket.io-client');
 this.socket = io.connect(hostPath, { query: "token="+sessionToken});
 
-var minutes = 30, the_interval = minutes * 60 * 1000; //30 seconds
+var minutes = 1, the_interval = minutes * 60 * 1000; //30 seconds
 setInterval(function() {
   for( var i = 0; i < usersToCheck.length; i++ ) {
     var steamId = usersToCheck[i];
