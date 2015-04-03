@@ -12,9 +12,12 @@ var currOnline = [];
 
 var sessionToken = '7de545895cab3458527d079a6b3627e79f8898bfaa3dbc9898b78ff6e5077444d88e6ff9c9182262b4a2f6cdeb1a4d53' // steam_buddy session token
 var io = require('socket.io-client');
-this.socket = io.connect(hostPath, { query: "token="+sessionToken});
 
-var minutes = 1, the_interval = minutes * 60 * 1000; //30 seconds
+
+
+
+
+var minutes = .1, the_interval = minutes * 60 * 1000; //60 seconds
 setInterval(function() {
   for( var i = 0; i < usersToCheck.length; i++ ) {
     var steamId = usersToCheck[i];
@@ -36,8 +39,31 @@ this.connect = function(token) {
   });
 };
 
-this.connect(sessionToken);
 
+this.login = function() {
+  var url = hostPath + '/login';
+  console.log('url:',url);
+  // MUST RUN WITH: $ STEAM_BUDDY_PASSWORD=<password> node steambuddy.js
+  var password = process.env.STEAM_BUDDY_PASSWORD;
+  var params = {'username':'steam_buddy', 'password':password};
+  console.log('using password:',password);
+  request.post({
+    headers: {'content-type':'application/json'},
+    uri: url,
+    json: params
+  }, function(error, response, body) {
+       console.log('body', body['session-token']);
+       var session_token = body['session-token'];
+       if( session_token ) {
+         this.socket = io.connect(hostPath, {query: "token="+session_token});
+       }
+  }.bind(this));
+
+//  this.connect(sessionToken);
+//  this.socket = io.connect(hostPath, { query: "token="+sessionToken});
+};
+
+this.login();
 
 /*
  API Key: 9186ADF14E6553A2257FAC4856F822EA
@@ -78,7 +104,7 @@ var sendMessage = function(socket, steamIdToCheck) {
 	  console.log('remove from game');
 	  currOnline.splice(currOnline.indexOf(playerId), 1);
 	}
-	  
+
       }
     }
   });
