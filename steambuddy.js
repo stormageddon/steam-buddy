@@ -1,6 +1,6 @@
 var request = require('request');
 var http = require('http');
-var newrelic = require('./node_modules/newrelic/newrelic');
+var newrelic = require('./node_modules/newrelic/newrelic.js');
 
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
 var hostPort = '80';
@@ -129,5 +129,5 @@ if( check.length ) {
 
 var notify = function(message, socket) {
   console.log('notifying', message);
-  socket.emit('message', message);
+//  socket.emit('message', message);
 }
