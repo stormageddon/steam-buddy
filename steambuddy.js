@@ -1,7 +1,7 @@
 var request = require('request');
 
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
-var hostPort = '80';
+var hostPort = process.env.PORT || '80';
 var hostPath = hostUrl + ':' + hostPort;
 var usersToCheck = ['76561198024956371'/*ethan*/, '76561198081408345'/*me*/, '76561198013610944' /*jared*/, '76561198009215427' /*dave*/];
 var currOnline = [];
