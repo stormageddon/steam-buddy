@@ -30,7 +30,7 @@ setInterval(function() {
 
   // keep alive
   var keepAlivePort = process.env.PORT || '3000';
-  var keepAlivePath = 'localhost:' + keepAlivePort;
+  var keepAlivePath = 'https://morning-shore-1795.herokuapp.com:' + keepAlivePort;
   request(keepAlivePath, function(error, response, body) {
     if (error) {
       console.log('error:', error);
