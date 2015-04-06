@@ -23,8 +23,6 @@
   "dependencies": {
     "request": "^2.54.0",
     "socket.io-client": "0.9.16"
-  },
-  "devDependencies": {
     "hapi": "^8.4.0",
     "hapi-nudge": "^1.1.1"
   }
