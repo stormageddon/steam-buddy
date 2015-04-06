@@ -1,7 +1,6 @@
 var request = require('request');
 var Hapi = require('hapi');
 var Nudge = require('hapi-nudge');
-var newrelic = require('newrelic.js');
 
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
 var hostPort = '80';
