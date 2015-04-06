@@ -29,7 +29,9 @@ setInterval(function() {
   }
 
   // keep alive
-  request('https://morning-shore-1795.herokuapp.com/' + (process.env.PORT || '3000'), function(error, response, body) {
+  var keepAlivePort = process.env.PORT || '3000';
+  var keepAlivePath = 'localhost' + keepAlivePort;
+  request(keepAlivePath, function(error, response, body) {
     if (error) {
       console.log('error:', error);
     }
