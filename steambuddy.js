@@ -17,7 +17,7 @@ var io = require('socket.io-client');
 
 
 
-var minutes = .1, the_interval = minutes * 60 * 1000; //60 seconds
+var minutes = 1, the_interval = minutes * 60 * 1000; //60 seconds
 setInterval(function() {
   for( var i = 0; i < usersToCheck.length; i++ ) {
     var steamId = usersToCheck[i];
