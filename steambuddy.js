@@ -1,6 +1,7 @@
 var request = require('request');
-var http = require('http');
-var newrelic = require('./newrelic.js');
+var Hapi = require('hapi');
+var Nudge = require('hapi-nudge');
+var newrelic = require('newrelic.js');
 
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
 var hostPort = '80';
@@ -11,8 +12,27 @@ var currOnline = [];
 //var hostPath = '127.0.0.1:3000';
 //var sessionToken = 'ba716392dca54875977ef32f11a41165174f0dd61c13a79a2ec7bf59dd44509387b2dc8c1ab127ca79e250153f08cb52';
 //var sessionToken = '4a758c0306e81c61f04f8cb367f602ef42bdad20860727a20fe6d417a858a45e51e53ff087b9e782e1791b60727c74e2'
+var port = process.env.PORT || 3000;
+var server = new Hapi.Server();
+server.connection({
+  host: 'localhost',
+  port: process.env.PORT || 3000
+});
 
-http.createServer().listen(process.env.PORT || 3000);
+server.register({
+  register: Nudge,
+  options: options
+});
+
+server.route({
+  method: 'GET',
+  path:'/nudge',
+  handler: function (request, reply) {
+    reply('stayin alive');
+  }
+});
+
+server.start();
 
 var sessionToken = '7de545895cab3458527d079a6b3627e79f8898bfaa3dbc9898b78ff6e5077444d88e6ff9c9182262b4a2f6cdeb1a4d53' // steam_buddy session token
 var io = require('socket.io-client');
