@@ -1,4 +1,5 @@
 var request = require('request');
+var http = require('http');
 
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
 var hostPort = '80';
@@ -9,6 +10,8 @@ var currOnline = [];
 var sessionToken = '7de545895cab3458527d079a6b3627e79f8898bfaa3dbc9898b78ff6e5077444d88e6ff9c9182262b4a2f6cdeb1a4d53' // steam_buddy session token
 var io = require('socket.io-client');
 
+
+http.Server().listen('https://morning-shore-1795.herokuapp.com/', process.env.PORT || 3000);
 
 
 
