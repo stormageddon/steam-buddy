@@ -1,5 +1,6 @@
 var request = require('request');
 var http = require('http');
+var newrelic = require('./node_modules/newrelic/newrelic');
 
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
 var hostPort = '80';
