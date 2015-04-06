@@ -29,7 +29,11 @@ setInterval(function() {
   }
 
   // keep alive
-  request('https://morning-shore-1795.herokuapp.com/' + (process.env.PORT || '3000'));
+  request('https://morning-shore-1795.herokuapp.com/' + (process.env.PORT || '3000'), function(error, response, body) {
+    if (error) {
+      console.log('error:', error);
+    }
+  });
 }.bind(this), the_interval);
 
 this.connect = function(token) {
