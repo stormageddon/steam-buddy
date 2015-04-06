@@ -19,8 +19,7 @@ server.connection({
 });
 
 server.register({
-  register: Nudge,
-  options: options
+  register: Nudge
 });
 
 server.route({
