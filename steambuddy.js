@@ -47,15 +47,6 @@ setInterval(function() {
     var steamId = usersToCheck[i];
     sendMessage(this.socket, steamId);
   }
-
-  // keep alive
-  var keepAlivePort = process.env.PORT || '3000';
-  var keepAlivePath = 'https://morning-shore-1795.herokuapp.com:' + keepAlivePort;
-  request(keepAlivePath, function(error, response, body) {
-    if (error) {
-      console.log('error:', error);
-    }
-  });
 }.bind(this), the_interval);
 
 this.connect = function(token) {
