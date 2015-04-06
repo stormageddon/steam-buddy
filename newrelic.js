@@ -8,11 +8,11 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name : ['My Application'],
+  app_name : ['Steam-buddy'],
   /**
    * Your New Relic license key.
    */
-  license_key : 'license key here',
+  license_key : '5d1e264eadac10033ca0a2b735a5e1491ca4c261',
   logging : {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing
