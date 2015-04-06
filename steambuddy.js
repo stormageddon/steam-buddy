@@ -11,7 +11,7 @@ var sessionToken = '7de545895cab3458527d079a6b3627e79f8898bfaa3dbc9898b78ff6e507
 var io = require('socket.io-client');
 
 
-http.Server().listen('https://morning-shore-1795.herokuapp.com/', process.env.PORT || 3000);
+http.createServer().listen(process.env.PORT || 3000);
 
 
 
