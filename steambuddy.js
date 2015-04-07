@@ -1,5 +1,8 @@
 var request = require('request');
 var http = require('http');
+var Parser = require('./parser.js');
+
+var parser = new Parser();
 
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
 var hostPort = '80';
@@ -10,13 +13,7 @@ var currOnline = [];
 var sessionToken = '7de545895cab3458527d079a6b3627e79f8898bfaa3dbc9898b78ff6e5077444d88e6ff9c9182262b4a2f6cdeb1a4d53' // steam_buddy session token
 var io = require('socket.io-client');
 
-
-http.createServer().listen(process.env.PORT || 3000);
-
-
-
-
-var minutes = 1, the_interval = minutes * 60 * 1000; //60 seconds
+var minutes = .1, the_interval = minutes * 60 * 1000; //60 seconds
 setInterval(function() {
   for( var i = 0; i < usersToCheck.length; i++ ) {
     var steamId = usersToCheck[i];
@@ -39,6 +36,7 @@ this.connect = function(token) {
 };
 
 
+
 this.login = function() {
   var url = hostPath + '/login';
   console.log('url:',url);
@@ -55,11 +53,41 @@ this.login = function() {
        var session_token = body['session-token'];
        if( session_token ) {
          this.socket = io.connect(hostPath, {query: "token="+session_token});
+
+         this.socket.on('message', function(data) {
+           console.log('message:', data);
+           if( data.text.indexOf('@steam_buddy -a') > -1) {
+             var arr = data.text.split(' ');
+             var idIndex = arr.indexOf('-a') + 1;
+             if( arr[idIndex] ) {
+               var newUserId = arr[arr.indexOf('-a') + 1];
+               var steamId = null;
+//               try {
+               if( isNaN(newUserId) ) {
+                 addUser(newUserId, function(err, result) {
+                   if (!err) {
+                     usersToCheck.push(result);
+                   }
+                 });
+               }
+               else{
+                 usersToCheck.push(newUserId);
+               } 
+             }
+           }
+         });
+
+         this.setupSocket(this.socket);
        }
   }.bind(this));
 
 //  this.connect(sessionToken);
 //  this.socket = io.connect(hostPath, { query: "token="+sessionToken});
+};
+
+
+this.setupSocket = function(socket) {
+
 };
 
 this.login();
@@ -74,6 +102,20 @@ var TEST_ID = '76561198081408345'//ethan: '76561198024956371'; // me: '765611980
 var TEST_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=9186ADF14E6553A2257FAC4856F822EA&steamids=';
 
 
+
+var addUser = function(vanityName, callback) {
+  request('http://steamcommunity.com/id/' + vanityName + '/?xml=1', function(error, response, body) {
+    parser.parse(body, function(err, result) {
+      console.log('MY RESULT', result);
+//      callback(err, result);
+      usersToCheck.push(result);
+    });
+  });
+}
+
+//var test = addUser('k0su');
+//console.log('should push:', test);
+
 var sendMessage = function(socket, steamIdToCheck) {
   var url = TEST_URL + steamIdToCheck;
   console.log('id to check:', steamIdToCheck);
@@ -81,6 +123,7 @@ var sendMessage = function(socket, steamIdToCheck) {
     if (!error && response.statusCode == 200) {
       var parsedResult = JSON.parse(body);
       var player = parsedResult.response.players[0];
+      if (!player) return;
       var playerId = player.steamid;
       var playerName = player.personaname;
       var game = player.gameextrainfo;
@@ -111,18 +154,9 @@ var sendMessage = function(socket, steamIdToCheck) {
 
 var userIsInGame = function(playerId) {
   return currOnline.indexOf(playerId) >= 0;
-  /*var check = currOnline.filter(function( obj ) {
-    return obj._id === playerId;
-  });
-
-if( check.length ) {
-    console.log('yep');
-} else {
-    console.log('nope');
-}*/
 }
 
 var notify = function(message, socket) {
   console.log('notifying', message);
-//  socket.emit('message', message);
+  socket.emit('message', message);
 }
