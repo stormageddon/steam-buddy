@@ -7,10 +7,9 @@ var parser = new Parser();
 var hostUrl = 'http://powerful-cliffs-9562.herokuapp.com';
 var hostPort = '80';
 var hostPath = hostUrl + ':' + hostPort;
-var usersToCheck = ['76561198024956371'/*ethan*/, '76561198081408345'/*me*/, '76561198013610944' /*jared*/, '76561198009215427' /*dave*/];
+var usersToCheck = ['76561198024956371'/*ethan*/, '76561198081408345'/*me*/, '76561198013610944' /*jared*/, '76561198009215427' /*dave*/, '76561198191717482'/*ruthless_kitten*/];
 var currOnline = [];
 
-var sessionToken = '7de545895cab3458527d079a6b3627e79f8898bfaa3dbc9898b78ff6e5077444d88e6ff9c9182262b4a2f6cdeb1a4d53' // steam_buddy session token
 var io = require('socket.io-client');
 
 var minutes = .1, the_interval = minutes * 60 * 1000; //60 seconds
@@ -55,6 +54,7 @@ this.login = function() {
          this.socket = io.connect(hostPath, {query: "token="+session_token});
 
          this.socket.on('message', function(data) {
+           return;
            console.log('message:', data);
            if( data.text.indexOf('@steam_buddy -a') > -1) {
              var arr = data.text.split(' ');
@@ -62,17 +62,19 @@ this.login = function() {
              if( arr[idIndex] ) {
                var newUserId = arr[arr.indexOf('-a') + 1];
                var steamId = null;
-//               try {
                if( isNaN(newUserId) ) {
                  addUser(newUserId, function(err, result) {
                    if (!err) {
                      usersToCheck.push(result);
                    }
+                   else {
+                     console.log('error adding user:', err);
+                   }
                  });
                }
                else{
-                 usersToCheck.push(newUserId);
-               } 
+                   usersToCheck.push(newUserId);
+               }
              }
            }
          });
@@ -81,8 +83,6 @@ this.login = function() {
        }
   }.bind(this));
 
-//  this.connect(sessionToken);
-//  this.socket = io.connect(hostPath, { query: "token="+sessionToken});
 };
 
 
@@ -106,15 +106,10 @@ var TEST_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/
 var addUser = function(vanityName, callback) {
   request('http://steamcommunity.com/id/' + vanityName + '/?xml=1', function(error, response, body) {
     parser.parse(body, function(err, result) {
-      console.log('MY RESULT', result);
-//      callback(err, result);
       usersToCheck.push(result);
     });
   });
 }
-
-//var test = addUser('k0su');
-//console.log('should push:', test);
 
 var sendMessage = function(socket, steamIdToCheck) {
   var url = TEST_URL + steamIdToCheck;
