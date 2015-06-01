@@ -1,6 +1,7 @@
 var request = require('request');
 var http = require('http');
 var Parser = require('./parser.js');
+var Slack = require('slack-client');
 
 var parser = new Parser();
 
@@ -11,14 +12,6 @@ var usersToCheck = ['76561198024956371'/*ethan*/, '76561198081408345'/*me*/, '76
 var currOnline = [];
 
 var io = require('socket.io-client');
-
-var minutes = .1, the_interval = minutes * 60 * 1000; //60 seconds
-setInterval(function() {
-  for( var i = 0; i < usersToCheck.length; i++ ) {
-    var steamId = usersToCheck[i];
-    sendMessage(this.socket, steamId);
-  }
-}.bind(this), the_interval);
 
 this.connect = function(token) {
   this.socket.on('connect', function() {
@@ -34,9 +27,57 @@ this.connect = function(token) {
   });
 };
 
+var token = process.env.SLACK_TOKEN;
+var slack = new Slack(token, true, true);
+var currentChannel = null;
+
+console.log('slack:',slack);
+
+slack.on('open', function(data) {
+  console.log('Connected');
+  var channel, channels, id;
+
+  channels = (function() {
+    console.log('here?');
+    var ref, results;
+    ref = slack.channels;
+    results = [];
+    for (id in ref) {
+      channel = ref[id];
+      if (channel.is_member) {
+        results.push(channel);
+        console.log('the channel:', channel);
+      }
+    }
+    console.log('results:',results);
+    return results;
+  })();
+
+  var channel = channels[0];
+  currentChannel = channel;
+  console.log('channel:',channel, typeof channel);
+//  channel.send('/giphy Dave mad');
+});
+
+slack.on('error', function(err) {
+  console.log('error!', err);
+});
+
+slack.login()
 
 
-this.login = function() {
+
+var minutes = .1, the_interval = minutes * 60 * 1000; //60 seconds
+setInterval(function() {
+  for( var i = 0; i < usersToCheck.length; i++ ) {
+    var steamId = usersToCheck[i];
+    sendMessage(this.socket, steamId);
+  }
+}.bind(this), the_interval);
+
+
+
+/*this.login = function() {
   var url = hostPath + '/login';
   console.log('url:',url);
   // MUST RUN WITH: $ STEAM_BUDDY_PASSWORD=<password> node steambuddy.js
@@ -84,13 +125,13 @@ this.login = function() {
   }.bind(this));
 
 };
-
+*/
 
 this.setupSocket = function(socket) {
 
 };
 
-this.login();
+//this.login();
 
 /*
  API Key: 9186ADF14E6553A2257FAC4856F822EA
@@ -125,15 +166,12 @@ var sendMessage = function(socket, steamIdToCheck) {
 
       if( game ) {
 	console.log('%s is playing %s',playerName,game);
-	if (socket != null && !userIsInGame(playerId)) {
-	  var groupId = '5341d9c9118f86020000000a';// test group: "5446efc342718e0200b33be1"; //Besties: 5341d9c9118f86020000000a
+	if (!userIsInGame(playerId)) {
+	 // var groupId = '5341d9c9118f86020000000a';// test group: "5446efc342718e0200b33be1"; //Besties: 5341d9c9118f86020000000a
           var messageText = playerName + ' is playing ' + game + '! Go join him!';
-          var message = {group: groupId, hasMedia: false, 'text': messageText};
-	  notify(message, socket);
+          //var message = {group: groupId, hasMedia: false, 'text': messageText};
+	  notify(messageText, socket);
 	  currOnline.push(playerId);
-	}
-	else {
-	  console.log('not connected');
 	}
       }
       else {
@@ -153,5 +191,8 @@ var userIsInGame = function(playerId) {
 
 var notify = function(message, socket) {
   console.log('notifying', message);
-  socket.emit('message', message);
+  //socket.emit('message', message);
+  if( currentChannel ) {
+    currentChannel.send(message);
+  }
 }
