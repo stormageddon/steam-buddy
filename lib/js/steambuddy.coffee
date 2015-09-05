@@ -25,10 +25,6 @@ init = ->
   setInterval( (=>
     console.log 'users', usersToCheck
     getOnlineUsers(usersToCheck)
-
-
-
-#    sendNotifications(user) for user in onlineUsers
   ), the_interval)
 
 sendNotifications = (user)->
@@ -47,16 +43,15 @@ getOnlineUsers = (allUsers)->
   deferred = $q.defer()
   async.each allUsers, (user, callback)->
     isUserOnline(user).then (result)->
-#      onlineUsers.push(result) if result
-      sendNotifications(user) for user in result
+      console.log 'got a result:', result
+      onlineUsers.push(result) if result
+
       callback()
   , (err)->
+    sendNotifications(user) for user in onlineUsers if not err
     deferred.resolve(onlineUsers) if not err
 
   deferred.promise
-
-  #onlineUsers = isUserOnline(user) for user in allUsers
-
 
 isUserOnline = (user)->
   console.log 'Checking user ', user, typeof user
@@ -75,12 +70,12 @@ isUserOnline = (user)->
       game = player.gameextrainfo
       console.log 'game:', game
 
-      if (game)
+      if game and not user.isPlaying()
         user.setInGame(game)
         deferred.resolve(user)
 
-      else
-        user.setInactive() if not user.isPlaying()
+      else if not game
+        user.setInactive()
         deferred.resolve(null)
     else
       console.log 'An error was encountered', error

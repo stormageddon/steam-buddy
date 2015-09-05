@@ -15,8 +15,8 @@ class SlackIntegration
     @slack.on 'error', (err)->
       console.log 'Slack error!', err
 
-    @slack.on 'open', (data)->
-      console.log 'Slack data:', data
+    @slack.on 'open', (data)=>
+      @channels = (channel for id, channel of @slack.channels when channel.is_member)
 
   sendNotification: (player, game)->
     console.log "Sending slack notification for #{player} in #{game}"

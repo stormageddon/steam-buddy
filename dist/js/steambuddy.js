@@ -87,14 +87,20 @@
     deferred = $q.defer();
     async.each(allUsers, function(user, callback) {
       return isUserOnline(user).then(function(result) {
-        var i, len;
-        for (i = 0, len = result.length; i < len; i++) {
-          user = result[i];
-          sendNotifications(user);
+        console.log('got a result:', result);
+        if (result) {
+          onlineUsers.push(result);
         }
         return callback();
       });
     }, function(err) {
+      var i, len, user;
+      if (!err) {
+        for (i = 0, len = onlineUsers.length; i < len; i++) {
+          user = onlineUsers[i];
+          sendNotifications(user);
+        }
+      }
       if (!err) {
         return deferred.resolve(onlineUsers);
       }
@@ -118,13 +124,11 @@
         }
         game = player.gameextrainfo;
         console.log('game:', game);
-        if (game) {
+        if (game && !user.isPlaying()) {
           user.setInGame(game);
           return deferred.resolve(user);
-        } else {
-          if (!user.isPlaying()) {
-            user.setInactive();
-          }
+        } else if (!game) {
+          user.setInactive();
           return deferred.resolve(null);
         }
       } else {

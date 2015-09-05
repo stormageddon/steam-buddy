@@ -14,9 +14,23 @@
       this.slack.on('error', function(err) {
         return console.log('Slack error!', err);
       });
-      this.slack.on('open', function(data) {
-        return console.log('Slack data:', data);
-      });
+      this.slack.on('open', (function(_this) {
+        return function(data) {
+          var channel, id;
+          return _this.channels = (function() {
+            var ref, results;
+            ref = this.slack.channels;
+            results = [];
+            for (id in ref) {
+              channel = ref[id];
+              if (channel.is_member) {
+                results.push(channel);
+              }
+            }
+            return results;
+          }).call(_this);
+        };
+      })(this));
     }
 
     SlackIntegration.prototype.sendNotification = function(player, game) {
