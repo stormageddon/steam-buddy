@@ -1,46 +1,92 @@
 request = require('request');
 http = require('http');
 Parser = require('./parser.js');
-Slack = require('slack-client');
-
+config = require('../../config.json');
 parser = new Parser();
+SlackIntegration = require('./integrations/slack_integration.js')
+User = require('./user.js')
+$q = require('Q')
+async = require('async')
 
-usersToCheck = [
-  '76561198024956371' #abattoir
-  '76561198081408345' #mother confessor
-  '76561198013610944' #onion knight
-  '76561198009215427' #stiny
-  '76561198191717482' #ruthless_kitten
-  ]
+PLAYER_SUMMARY_URL = process.env.PLAYER_SUMMARY_URL
 
-currOnline = []
+integrations = []
 
-token = process.env.SLACK_TOKEN
-slack = new Slack(token, true, true)
-currentChannel = null
+init = ->
+  integrations.push(new SlackIntegration({token: process.env.SLACK_TOKEN}))
 
-slack.on('open', (data)->
-  console.log 'Connected'
+  console.log 'config users:', config.users
+  usersToCheck = []
+  usersToCheck = (new User({name: user, id: id}) for id, user of config.users)
 
-  channels = (channel for id, channel of slack.channels when channel.is_member)
-
-  currentChannel = channels[0];
-  console.log 'channel:',currentChannel, typeof currentChannel
-)
-
-slack.on('error', (err)->
-  console.log('error!', err);
-)
-
-slack.login()
+  console.log 'users to check: ', usersToCheck
+  minutes = .1
+  the_interval = minutes * 60 * 1000 #10 seconds
+  setInterval( (=>
+    console.log 'users', usersToCheck
+    getOnlineUsers(usersToCheck)
 
 
-minutes = .1
-the_interval = minutes * 60 * 1000 #60 seconds
 
-setInterval( (->
-  sendMessage user for user in usersToCheck
-), the_interval)
+#    sendNotifications(user) for user in onlineUsers
+  ), the_interval)
+
+sendNotifications = (user)->
+  console.log 'sending muh notification for', user
+  integration.sendNotification(user.name, user.currentGame) for integration in integrations
+
+parseUsers = (usersToCheck)->
+  usersToCheck.push(new User({name: user, id: id})) for id, user of config.users
+  console.log 'populated users:', usersToCheck
+  usersToCheck
+
+
+getOnlineUsers = (allUsers)->
+  console.log 'all users:', allUsers
+  onlineUsers = []
+  deferred = $q.defer()
+  async.each allUsers, (user, callback)->
+    isUserOnline(user).then (result)->
+#      onlineUsers.push(result) if result
+      sendNotifications(user) for user in result
+      callback()
+  , (err)->
+    deferred.resolve(onlineUsers) if not err
+
+  deferred.promise
+
+  #onlineUsers = isUserOnline(user) for user in allUsers
+
+
+isUserOnline = (user)->
+  console.log 'Checking user ', user, typeof user
+  url = PLAYER_SUMMARY_URL + user.id
+  deferred = $q.defer()
+
+  request url, (error, response, body)->
+    if !error && response.statusCode is 200
+      parsedResult = JSON.parse(body)
+      player = parsedResult.response.players[0]
+
+      console.log 'parsed player:', player
+
+      return null if not player
+
+      game = player.gameextrainfo
+      console.log 'game:', game
+
+      if (game)
+        user.setInGame(game)
+        deferred.resolve(user)
+
+      else
+        user.setInactive() if not user.isPlaying()
+        deferred.resolve(null)
+    else
+      console.log 'An error was encountered', error
+      return error
+
+  deferred.promise
 
 sendMessage = (steamIdToCheck)->
   url = TEST_URL + steamIdToCheck;
@@ -68,20 +114,4 @@ sendMessage = (steamIdToCheck)->
         currOnline.splice(currOnline.indexOf(playerId), 1) if userIsInGame(playerId)
   )
 
-TEST_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=9186ADF14E6553A2257FAC4856F822EA&steamids=';
-
-
-
-addUser = (vanityName, callback)->
-  request('http://steamcommunity.com/id/' + vanityName + '/?xml=1', (error, response, body)->
-    parser.parse(body, (err, result)->
-      usersToCheck.push(result)
-    )
-  )
-
-userIsInGame = (playerId)->
-  currOnline.indexOf(playerId) >= 0
-
-notify = (message)->
-  console.log 'notifying', message, currentChannel
-  currentChannel.send(message) if currentChannel
+init()
