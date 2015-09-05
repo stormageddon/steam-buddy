@@ -7,7 +7,6 @@ class SlackIntegration
       @token
     } = opts
 
-    console.log "creating slack integration with token #{@token}"
     @slack = new Slack(@token, true, true)
     @slack.login()
     @channels = [] # Populate channels here
@@ -19,7 +18,6 @@ class SlackIntegration
       @channels = (channel for id, channel of @slack.channels when channel.is_member)
 
   sendNotification: (player, game)->
-    console.log "Sending slack notification for #{player} in #{game}"
     return if not @channels or not @channels.length > 0
     channel.send("#{player} is playing #{game}! Go join them!") for channel in @channels
 
