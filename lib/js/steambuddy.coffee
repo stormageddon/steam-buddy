@@ -16,7 +16,8 @@ init = ->
   integrations.push(new SlackIntegration({token: process.env.SLACK_TOKEN}))
 
   usersToCheck = []
-  usersToCheck = (new User({name: user, id: id}) for id, user of config.users)
+  ((parseUser(user).then (result)-> usersToCheck.push(result)) for user in config.users)
+  console.log 'usersToCheck:', usersToCheck
 
   minutes = .1
   the_interval = minutes * 60 * 1000 #10 seconds
@@ -69,6 +70,15 @@ isUserOnline = (user)->
     else
       console.log 'An error was encountered', error
       return error
+
+  deferred.promise
+
+parseUser = (vanityName, callback)->
+  deferred = $q.defer()
+  request 'http://steamcommunity.com/id/' + vanityName + '/?xml=1', (error, response, body)=>
+    parser.parse body, (err, result)->
+      console.log 'returned: ', result
+      deferred.resolve(new User({name: result.name, id: result.id}))
 
   deferred.promise
 
