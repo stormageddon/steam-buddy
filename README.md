@@ -5,7 +5,7 @@ Steam buddy is a small node bot that watches for Steam users to join a game. Whe
 
 
 Get notified immediately when your friends begin playing a steam game!
-![Steam Buddy Screenshot](/img/steambuddy.png)
+![Steam Buddy Screenshot](/img/steam_buddy.png)
 
 ## Configuration
 Steam Buddy currently uses a simple configuration file to store information like Slack channels and Steam usernames. An example configuration file:
