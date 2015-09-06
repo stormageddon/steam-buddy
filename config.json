@@ -4,5 +4,8 @@
     "76561198081408345": "The Mother Confessor",
     "76561198013610944": "Potato Knight",
     "76561198009215427": "Stiny"
+  },
+  "channels": {
+    "general": ["Abattoir", "The Mother Confessor", "Potato Knight", "Stiny"]
   }
 }
