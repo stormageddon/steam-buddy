@@ -18,12 +18,9 @@ init = ->
   usersToCheck = []
   ((parseUser(user).then (result)-> usersToCheck.push(result)) for user in config.users)
 
-#  async.each config.users, parseUser, (err)->
-
   minutes = .1
   the_interval = minutes * 60 * 1000 #10 seconds
   setInterval( (=>
-    console.log 'Getting online users', usersToCheck
     getOnlineUsers(usersToCheck)
   ), the_interval)
 
@@ -34,11 +31,8 @@ getOnlineUsers = (allUsers)->
   onlineUsers = []
   deferred = $q.defer()
   async.each allUsers, (user, callback)->
-    console.log 'going through all users', user
     isUserOnline(user).then (result)->
-      console.log 'user is online:', user
       onlineUsers.push(result) if result
-
       callback()
   , (err)->
     sendNotifications(user) for user in onlineUsers if not err
@@ -76,7 +70,6 @@ parseUser = (vanityName)->
   deferred = $q.defer()
   request 'http://steamcommunity.com/id/' + vanityName + '/?xml=1', (error, response, body)=>
     parser.parse body, (err, result)->
-      console.log 'returned: ', result
       deferred.resolve(new User({name: result.name, id: result.id}))
 
   deferred.promise
