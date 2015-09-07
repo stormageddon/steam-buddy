@@ -17,27 +17,26 @@ init = ->
 
   usersToCheck = []
   ((parseUser(user).then (result)-> usersToCheck.push(result)) for user in config.users)
-  console.log 'usersToCheck:', usersToCheck
+
+#  async.each config.users, parseUser, (err)->
 
   minutes = .1
   the_interval = minutes * 60 * 1000 #10 seconds
   setInterval( (=>
+    console.log 'Getting online users', usersToCheck
     getOnlineUsers(usersToCheck)
   ), the_interval)
 
 sendNotifications = (user)->
   integration.sendNotification(user.name, user.currentGame) for integration in integrations
 
-parseUsers = (usersToCheck)->
-  usersToCheck.push(new User({name: user, id: id})) for id, user of config.users
-  usersToCheck
-
-
 getOnlineUsers = (allUsers)->
   onlineUsers = []
   deferred = $q.defer()
   async.each allUsers, (user, callback)->
+    console.log 'going through all users', user
     isUserOnline(user).then (result)->
+      console.log 'user is online:', user
       onlineUsers.push(result) if result
 
       callback()
@@ -73,7 +72,7 @@ isUserOnline = (user)->
 
   deferred.promise
 
-parseUser = (vanityName, callback)->
+parseUser = (vanityName)->
   deferred = $q.defer()
   request 'http://steamcommunity.com/id/' + vanityName + '/?xml=1', (error, response, body)=>
     parser.parse body, (err, result)->

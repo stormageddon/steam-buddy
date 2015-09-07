@@ -1,6 +1,6 @@
 Slack = require('slack-client')
 require('events').EventEmitter
-config = require('../../../config.json');
+config = require('../../../config.json').slack;
 
 class SlackIntegration
 
@@ -29,7 +29,7 @@ class SlackIntegration
     return if not @config_channels or not @slack_channels
 
     channels = @getChannelsToNotify(player)
-    message = "#{player} is playing #{game}! Go join them!"
+    message = config.message.replace('#{player}', player).replace('#{game}', game)
     channel.send(message) for channel in channels
 
   getChannelsToNotify: (player)=>
