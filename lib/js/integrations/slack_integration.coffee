@@ -3,6 +3,7 @@ require('events').EventEmitter
 config = require('../../../config.json').slack;
 
 class SlackIntegration
+  DEFAULT_MESSAGE = "#{player} is playing #{game}. Go join them!"
 
   constructor: (opts)->
     {
@@ -29,7 +30,9 @@ class SlackIntegration
     return if not @config_channels or not @slack_channels
 
     channels = @getChannelsToNotify(player)
-    message = config.message.replace('#{player}', player).replace('#{game}', game)
+
+    message = if config.message then formatMessage(config.message, player, game) else formatMessage(DEFAULT_MESSAGE, player, game)
+
     channel.send(message) for channel in channels
 
   getChannelsToNotify: (player)=>
@@ -38,5 +41,9 @@ class SlackIntegration
 
     notifyChannels
 
+  formatMessage: (message, player, game)->
+    message.replace('#{player}', player) if player
+    message.replace('#{game}', game) if game
+    message
 
   module.exports = SlackIntegration
