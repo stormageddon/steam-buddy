@@ -68,9 +68,9 @@ isUserOnline = (user)->
 
 parseUser = (vanityName)->
   deferred = $q.defer()
-  request 'http://steamcommunity.com/id/' + vanityName + '/?xml=1', (error, response, body)=>
+  request "http://steamcommunity.com/id/#{vanityName}/?xml=1", (error, response, body)=>
     parser.parse body, (err, result)->
-      deferred.resolve(new User({name: result.name, id: result.id}))
+      deferred.resolve(new User({name: result.name, id: result.id})) if not err
 
   deferred.promise
 
