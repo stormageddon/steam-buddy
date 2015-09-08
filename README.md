@@ -3,7 +3,6 @@
 ## Description
 Steam buddy is a small node bot that watches for Steam users to join a game. When a member starts playing a game, Steam Buddy sends out notifications to let all of their friends know they are starting to play. Steam Buddy is currently configured to integrate with slack chat, but there are plans to extend Steam Buddy's functionality to include other means of communication.
 
-
 Get notified immediately when your friends begin playing a steam game!
 ![Steam Buddy Screenshot](/img/steam_buddy.png)
 
@@ -28,22 +27,19 @@ Steam Buddy currently uses a simple configuration file to store information like
 
   `channels` - In this section you should list all channels that you want Steam Buddy to send out notifications on. The channels should be a JSON object with the channel name as the id, and a list of Steam Display Names that will be in the messages that are sent out.
 
-
-## Configuring for slack
+## Configuring for Slack
 In order for Steam Buddy to send Slack messages, it needs to be set up as a slack bot. Simply add a new bot integration to your slack team and set the channel(s) that you want Steam Buddy to run on. Save the integration and set the generated slack token as an environment variable: `export SLACK_TOKEN="abcd-1234-abcd-1234"`. Steam Buddy will read this token in when launched and use it to authenticate into Slack and send messages.
 
+Steam Buddy also requires a steam API key. You can generate an api key in steam, and then add it to your enfironment with `STEAM_API_KEY="ABCDEFGHIJKLMNOP1234567890"`.
 
 ## Running Steam Buddy
 1. Clone the Steam Buddy repository.
 2. Set up the configuration file (see Configuration section above)
-3. run `npm install` to install all dependencies
-4. run `make run` to run steam buddy
+3. Set up your integrations and environment variables (see Configuring for Slack above)
+4. run `npm install` to install all dependencies
+5. run `make run` to run steam buddy
 
 It is suggested you run Steam Buddy as a daemon using something like screens or supervisord.
-
-## Todo
-1. Break out some of the constants that are stored in plaintext
-2. Clean up and modularize the code
 
 ## Future features
 1. Allow users to open the steam game from the message
