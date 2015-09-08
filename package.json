@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/stormageddon/steam-buddy",
   "dependencies": {
+    "async": "^1.4.2",
     "coffee-script": "^1.9.3",
     "q": "^1.4.1",
     "request": "^2.54.0",
