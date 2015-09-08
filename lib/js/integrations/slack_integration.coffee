@@ -3,7 +3,7 @@ require('events').EventEmitter
 config = require('../../../config.json').slack;
 
 class SlackIntegration
-  DEFAULT_MESSAGE = "#{player} is playing #{game}. Go join them!"
+  DEFAULT_MESSAGE = '#{player} is playing #{game}. Go join them!'
 
   constructor: (opts)->
     {
@@ -42,8 +42,8 @@ class SlackIntegration
     notifyChannels
 
   formatMessage: (message, player, game)->
-    message.replace('#{player}', player) if player
-    message.replace('#{game}', game) if game
+    message.replace('#{player}', player)
+    message.replace('#{game}', game)
     message
 
   module.exports = SlackIntegration
