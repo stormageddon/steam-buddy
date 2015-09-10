@@ -8,7 +8,6 @@ User = require('./user.js')
 $q = require('q')
 async = require('async')
 
-STEAM_API_TOKEN = process.env.STEAM_API_TOKEN
 FULL_PLAYER_URL = process.env.PLAYER_SUMMARY_URL + process.env.STEAM_API_KEY + '&steamids='
 
 integrations = []
