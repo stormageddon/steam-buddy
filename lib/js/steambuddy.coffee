@@ -9,7 +9,7 @@ $q = require('q')
 async = require('async')
 
 STEAM_API_TOKEN = process.env.STEAM_API_TOKEN
-PLAYER_SUMMARY_URL = process.env.PLAYER_SUMMARY_URL + process.env.STEAM_API_KEY + '&steamids='
+FULL_PLAYER_URL = process.env.PLAYER_SUMMARY_URL + process.env.STEAM_API_KEY + '&steamids='
 
 integrations = []
 
@@ -42,10 +42,11 @@ getOnlineUsers = (allUsers)->
   deferred.promise
 
 isUserOnline = (user)->
-  url = PLAYER_SUMMARY_URL + user.id
+  url = FULL_PLAYER_URL + user.id
   deferred = $q.defer()
 
   request url, (error, response, body)->
+    console.log 'response:', response.statusCode
     if !error && response.statusCode is 200
       parsedResult = JSON.parse(body)
       player = parsedResult.response.players[0]
@@ -63,6 +64,7 @@ isUserOnline = (user)->
         deferred.resolve(null)
     else
       console.log 'An error was encountered', error
+      console.log 'url:', url
       return error
 
   deferred.promise
