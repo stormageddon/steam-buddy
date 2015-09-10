@@ -5,7 +5,7 @@ config = require('../../config.json');
 parser = new Parser();
 SlackIntegration = require('./integrations/slack_integration.js')
 User = require('./user.js')
-$q = require('Q')
+$q = require('q')
 async = require('async')
 
 STEAM_API_TOKEN = process.env.STEAM_API_TOKEN
