@@ -3,5 +3,4 @@ compile:
 
 run:
 	$(MAKE) compile
-	PLAYER_SUMMARY_URL='http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' \
 	node ./dist/js/steambuddy.js

@@ -9,7 +9,8 @@ $q = require('q')
 async = require('async')
 
 STEAM_API_TOKEN = process.env.STEAM_API_TOKEN
-PLAYER_SUMMARY_URL = process.env.PLAYER_SUMMARY_URL + process.env.STEAM_API_KEY + '&steamids='
+BASE_STEAM_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key='
+PLAYER_SUMMARY_URL = BASE_STEAM_URL + process.env.STEAM_API_KEY + '&steamids='
 
 integrations = []
 
