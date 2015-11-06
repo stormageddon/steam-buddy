@@ -13,6 +13,10 @@ FULL_PLAYER_URL = process.env.PLAYER_SUMMARY_URL + process.env.STEAM_API_KEY + '
 integrations = []
 
 init = ->
+  console.log '##### Environment variables:'
+  console.log '## Slack token:', process.env.SLACK_TOKEN
+  console.log '## Steam API Key:', process.env.STEAM_API_KEY
+  console.log '####################'
   integrations.push(new SlackIntegration({token: process.env.SLACK_TOKEN}))
 
   usersToCheck = []
@@ -45,7 +49,6 @@ isUserOnline = (user)->
   deferred = $q.defer()
 
   request url, (error, response, body)->
-    console.log 'response:', response.statusCode
     if !error && response.statusCode is 200
       parsedResult = JSON.parse(body)
       player = parsedResult.response.players[0]
