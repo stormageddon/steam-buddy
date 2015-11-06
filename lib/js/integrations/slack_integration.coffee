@@ -9,7 +9,6 @@ class SlackIntegration
     {
       @token
     } = opts
-
     @slack = new Slack(@token, true, true)
     @slack.login()
     @slack_channels = []

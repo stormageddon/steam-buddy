@@ -10,11 +10,15 @@ async = require('async')
 
 STEAM_API_TOKEN = process.env.STEAM_API_TOKEN
 BASE_STEAM_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key='
-PLAYER_SUMMARY_URL = BASE_STEAM_URL + process.env.STEAM_API_KEY + '&steamids='
+FULL_PLAYER_URL = BASE_STEAM_URL + process.env.STEAM_API_KEY + '&steamids='
 
 integrations = []
 
 init = ->
+  console.log '##### Environment variables:'
+  console.log '## Slack token:', process.env.SLACK_TOKEN
+  console.log '## Steam API Key:', process.env.STEAM_API_KEY
+  console.log '####################'
   integrations.push(new SlackIntegration({token: process.env.SLACK_TOKEN}))
 
   usersToCheck = []
@@ -43,7 +47,7 @@ getOnlineUsers = (allUsers)->
   deferred.promise
 
 isUserOnline = (user)->
-  url = PLAYER_SUMMARY_URL + user.id
+  url = FULL_PLAYER_URL + user.id
   deferred = $q.defer()
 
   request url, (error, response, body)->
@@ -64,6 +68,7 @@ isUserOnline = (user)->
         deferred.resolve(null)
     else
       console.log 'An error was encountered', error
+      console.log 'url:', url
       return error
 
   deferred.promise

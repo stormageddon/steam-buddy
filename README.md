@@ -33,6 +33,10 @@ In order for Steam Buddy to send Slack messages, it needs to be set up as a slac
 Steam Buddy also requires a steam API key. You can generate an api key in steam, and then add it to your environment with `STEAM_API_KEY="ABCDEFGHIJKLMNOP1234567890"`.
 
 ## Running Steam Buddy
+Running Steam Buddy requires that you have a few environment variables set:
+* [Steam API Key](http://steamcommunity.com/dev/registerkey): set as environment variable `STEAM_API_KEY`
+* [Slack Integration](https://api.slack.com/bot-users): set the slack token provided for the integration as `SLACK_API_TOKEN`
+
 1. Clone the Steam Buddy repository.
 2. Set up the configuration file (see Configuration section above)
 3. Set up your integrations and environment variables (see Configuring for Slack above)
