@@ -19,7 +19,7 @@ Steam Buddy currently uses a simple configuration file to store information like
 	  }	
 	}
 
-`users` - In this section, you should list all of the Steam IDs that you want Steam Buddy to monitor. Steam buddy will use this Steam ID to lookup the 64-bit ID as well as the users configured Steam Display Name when sending out notifications. The Steam ID should be the vanity url taht is configured for a user. To find the vanity url, simply go to a users profile page and take the last portion of the url: `http://steamcommunity.com/id/THE_VANITY_URL/`. This will either be a custom url set by the user or the users steam id. Either one will work.
+`users` - In this section, you should list all of the Steam IDs that you want Steam Buddy to monitor. Steam buddy will use this Steam ID to lookup the 64-bit ID as well as the users configured Steam Display Name when sending out notifications. The Steam ID should be the vanity url that is configured for a user. To find the vanity url, simply go to a users profile page and take the last portion of the url: `http://steamcommunity.com/id/THE_VANITY_URL/`. This will either be a custom url set by the user or the users steam id. Either one will work.
 
 `slack` - Identify a slack integration. You can configure various options for when sending out a slack notification in this section.
 
@@ -35,7 +35,7 @@ Steam Buddy also requires a steam API key. You can generate an api key in steam,
 ## Running Steam Buddy
 Running Steam Buddy requires that you have a few environment variables set:
 * [Steam API Key](http://steamcommunity.com/dev/registerkey): set as environment variable `STEAM_API_KEY`
-* [Slack Integration](https://api.slack.com/bot-users): set the slack token provided for the integration as `SLACK_API_TOKEN`
+* [Slack Integration](https://api.slack.com/bot-users): set the slack token provided for the integration as `SLACK_TOKEN`
 
 1. Clone the Steam Buddy repository.
 2. Set up the configuration file (see Configuration section above)
