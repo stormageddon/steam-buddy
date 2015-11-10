@@ -38,7 +38,7 @@ getOnlineUsers = (allUsers)->
   deferred = $q.defer()
   async.each allUsers, (user, callback)->
     isUserOnline(user).then (result)->
-      onlineUsers.push(result) if result
+      onlineUsers.push(result) if result and not result.error
       callback()
   , (err)->
     sendNotifications(user) for user in onlineUsers if not err
@@ -69,7 +69,7 @@ isUserOnline = (user)->
     else
       console.log 'An error was encountered', error
       console.log 'url:', url
-      return error
+      deferred.reject(error)
 
   deferred.promise
 
