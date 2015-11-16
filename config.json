@@ -1,5 +1,5 @@
 {
-  "users": ["Abattoir", "The_Mother_Confessor", "churak", "Stiny"],
+  "users": ["Abattoir", "The_Mother_Confessor", "churak", "st1ny"],
   "slack": {
     "message": "#{player} is playing #{game}! Go join them!",
     "channels": {
