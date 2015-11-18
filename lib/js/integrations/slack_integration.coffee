@@ -24,7 +24,8 @@ class SlackIntegration
       channel = @slack.getChannelGroupOrDMByID(message.channel)
 
     @slack.on 'close', (data)->
-      console.log 'Slack connection closed, waiting for reconnect'
+      console.log 'Slack connection closed, waiting for reconnect', data
+      @slack.login() # Attempt to log back in
 
 
   sendNotification: (player, game)->
