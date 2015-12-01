@@ -67,7 +67,7 @@ isUserOnline = (user)->
         user.setInactive()
         deferred.resolve(null)
     else
-      console.log 'An error was encountered', error
+      console.log 'An error was encountered at', Date.now()
       console.log 'status code:', response.statusCode
       console.log 'url:', url
       deferred.reject(error)
