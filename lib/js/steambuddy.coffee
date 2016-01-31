@@ -82,4 +82,14 @@ parseUser = (vanityName)->
 
   deferred.promise
 
-init()
+status = ->
+  console.log 'Checking status of connections'
+  deferred = $q.defer()
+  $q.spread (integration.isConnected() for integration in integrations), (result)->
+    console.log 'result:', result
+    deferred.resolve(result)
+  deferred.promise
+
+module.exports =
+  init: init
+  status: status

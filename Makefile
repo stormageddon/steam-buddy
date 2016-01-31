@@ -3,4 +3,4 @@ compile:
 
 run:
 	$(MAKE) compile
-	node ./dist/js/steambuddy.js
+	node --harmony dist/server.js

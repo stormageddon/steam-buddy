@@ -51,4 +51,7 @@ class SlackIntegration
     message.replace('#{game}', game)
     message
 
+  isConnected: ->
+    @slack.connected
+
   module.exports = SlackIntegration
