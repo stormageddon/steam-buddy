@@ -66,7 +66,7 @@ checkXBoxUsers = (xboxUsers)->
         activeGame = title?.name if title?.placement is 'Full'
 
       #activeGame = result.devices?[0].titles[1]?.name
-      game = result.devices[0].titles[1]?.name if activeGame?
+      game = activeGame if activeGame?
       console.log 'active game:', activeGame
       if result.state is 'Online' and activeGame? and activeGame isnt 'Home' and activeGame isnt 'Netflix' #and result.devices.titles[0] isnt 'Home'
         getXboxUserName(userId, game).then (data)=>
