@@ -29,6 +29,7 @@ class SlackIntegration
 
 
   sendNotification: (player, game)->
+    console.log 'player and game:', player, game
     console.log 'Send message', @config_channels.length, @slack_channels.length
     #return if not @config_channels or not @slack_channels
 
@@ -37,6 +38,7 @@ class SlackIntegration
     #message = if config.message then formatMessage(config.message, player, game) else formatMessage(DEFAULT_MESSAGE, player, game)
     message = "#{player} is playing #{game}. Go join them!"
     console.log 'sending + channel length', channels.length
+    console.log 'message for slack:', message
     channel.send(message) for channel in channels
 
   getChannelsToNotify: (player)=>
