@@ -3,10 +3,10 @@
   "slack": {
     "message": "#{player} is playing #{game}! Go join them!",
     "channels": {
-      "general": ["Abattoir", "The Mother Confessor", "Potato Knight", "Stiny", "SUM DE0S", "Churak"]
+      "general": ["Abattoir", "The Mother Confessor", "Potato Knight", "Stiny", "SUM DE0S", "Churak", "St1ny"]
     }
   },
   "xbox": {
-    "users": ["2535418176580113", "2533274876010587"]
+    "users": ["2535418176580113", "2533274876010587", "2533274809771124"]
   }
 }
