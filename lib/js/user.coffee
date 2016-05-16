@@ -10,6 +10,8 @@ class User
       @currentSystem
     } = opts
 
+    @slackUser = null
+
     @inGame = no
     @currentGame = null
 
