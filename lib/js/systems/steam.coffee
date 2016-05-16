@@ -77,7 +77,9 @@ class Steam
 
   saveUser: (user)->
     console.log 'saving:', user
-    @usersToCheck.push(user)
+    for u in @usersToCheck
+      return if u.name is user.name
+    @usersToCheck.push(user) if user not in @usersToCheck
     console.log 'added a user:', @usersToCheck, user
 
   module.exports = Steam
