@@ -1,9 +1,6 @@
 {
   "users": ["Abattoir", "churak", "st1ny"],
   "slack": {
-    "message": "#{player} is playing #{game}! Go join them!",
-    "channels": {
-      "general": ["Abattoir", "The Mother Confessor", "Potato Knight", "Stiny"]
-    }
+    "message": "#{player} is playing #{game}! Go join them!"
   }
 }
