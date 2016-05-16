@@ -1,59 +1,105 @@
 Slack = require('slack-client')
 require('events').EventEmitter
 config = require('../../../config.json').slack;
+Steam = require('../systems/steam.js')
+pkg = require('../../../package.json')
 
 class SlackIntegration
   DEFAULT_MESSAGE = '#{player} is playing #{game}. Go join them!'
+  VALID_COMMANDS = { ADD: 'add', ONLINE: 'online' }
 
-  constructor: (opts)->
+  # each slack connection needs to store the users it cares about
+  usersToCheck = []
+  NUM_USERS_ADDED = 0
+  MAX_USERS = 5
+
+  constructor: (opts, User)->
     {
       @token
     } = opts
+    @User = User
     @slack = new Slack(@token, true, true)
     @slack.login()
     @slack_channels = []
-    @config_channels = config.channels
+    @steam = null
 
     @slack.on 'error', (err)->
       console.log 'Slack error!', err
 
     @slack.on 'open', (data)=>
+      console.log 'Bot id:', @slack.self.id
+      @id = @slack.self.id
+      @steam = new Steam(slackTeam: @id)
       @slack_channels = (channel for id, channel of @slack.channels when channel.is_member)
+      @sendMessage("I'm live! Running version #{pkg.version}", @slack_channels[0])
 
     @slack.on 'message', (message)=>
       channel = @slack.getChannelGroupOrDMByID(message.channel)
+      isCommand = message.text.indexOf("@#{@id}") isnt -1
+      return if not isCommand
+      @parseCommand(message.text, message.user, channel)
 
     @slack.on 'close', (data)->
       console.log 'Slack connection closed, waiting for reconnect', data
       @slack.login() # Attempt to log back in
 
+  parseCommand: (command, sendingUser, channel)->
+    commandArr = command.split(' ')
+    commandAction = VALID_COMMANDS[commandArr[1].toUpperCase()]
+    return @sendMessage("`#{commandArr[1]}` is not a known command", channel) if not commandAction
 
-  sendNotification: (player, game)->
-    console.log 'player and game:', player, game
-    console.log 'Send message', @config_channels.length, @slack_channels.length
-    #return if not @config_channels or not @slack_channels
+    if commandAction is VALID_COMMANDS.ADD
 
-    channels = @getChannelsToNotify(player)
-    console.log 'config:', config
-    #message = if config.message then formatMessage(config.message, player, game) else formatMessage(DEFAULT_MESSAGE, player, game)
-    message = "#{player} is playing #{game}. Go join them!"
-    console.log 'sending + channel length', channels.length
-    console.log 'message for slack:', message
-    channel.send(message) for channel in channels
+      return @sendMessage("You already have #{MAX_USERS}. Please upgrade to premium to add more :kappa:", channel) if NUM_USERS_ADDED is MAX_USERS
 
-  getChannelsToNotify: (player)=>
-    userChannels = (channel for channel in @config_channels when channel.indexOf(player) isnt -1)
-    notifyChannels = (channel for channel in @slack_channels when userChannels[channel.name] isnt -1)
+      system = commandArr[2].toLowerCase()
+      newUser = commandArr[3]
 
-    notifyChannels
+      if system is 'steam'
+        @steam.parseUser(newUser).then (user)=>
+          user.slackUser = sendingUser
+          @steam.saveUser(user)
+          NUM_USERS_ADDED++
+
+      else
+        @sendMessage("#{system} is not a supported gaming environment", channel)
+
+      return
+
+    if commandAction is VALID_COMMANDS.ONLINE
+      users = @User.getOnlineUsers()
+
+      if users.length > 0
+        onlineMessage = 'Users currently in game:'
+        for user in users
+          username = @slack.users[user.slackUser].name
+          onlineMessage += "\n#{username} is online playing #{user.currentGame}"
+          onlineMessage += " (#{user.currentSystem})" if user.currentSystem
+        @sendMessage(onlineMessage, channel)
+      else
+        @sendMessage('No users currently in game', channel)
+      return
+
+  sendMessage: (message, channel)->
+    channel.send(message)
+
+  sendNotification: (slackId, game, system)->
+    username = @slack.users[slackId].name
+    message = "@#{username} is playing #{game}"
+    message += " on #{system}" if system
+    message += ". Go join them!"
+    channel.send(message) for channel in @slack_channels
 
   formatMessage: (message, player, game)->
-    console.log 'formatting message', message, player, game
     message.replace('#{player}', player)
     message.replace('#{game}', game)
     message
 
   isConnected: ->
     @slack.connected
+
+  checkOnlineUsers: ->
+    @steam.getOnlineUsers().then (onlineUsers)=>
+      @sendNotification(user.slackUser, user.currentGame, user.currentSystem) for user in onlineUsers
 
   module.exports = SlackIntegration
