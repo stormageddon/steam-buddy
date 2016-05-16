@@ -2,6 +2,7 @@ Slack = require('slack-client')
 require('events').EventEmitter
 config = require('../../../config.json').slack;
 Steam = require('../systems/steam.js')
+pkg = require('../../../package.json')
 
 class SlackIntegration
   DEFAULT_MESSAGE = '#{player} is playing #{game}. Go join them!'
@@ -9,6 +10,8 @@ class SlackIntegration
 
   # each slack connection needs to store the users it cares about
   usersToCheck = []
+  NUM_USERS_ADDED = 0
+  MAX_USERS = 5
 
   constructor: (opts, User)->
     {
@@ -28,6 +31,7 @@ class SlackIntegration
       @id = @slack.self.id
       @steam = new Steam(slackTeam: @id)
       @slack_channels = (channel for id, channel of @slack.channels when channel.is_member)
+      @sendMessage("I'm live! Running version #{pkg.version}", @slack_channels[0])
 
     @slack.on 'message', (message)=>
       channel = @slack.getChannelGroupOrDMByID(message.channel)
@@ -46,6 +50,8 @@ class SlackIntegration
 
     if commandAction is VALID_COMMANDS.ADD
 
+      return @sendMessage("You already have #{MAX_USERS}. Please upgrade to premium to add more :kappa:", channel) if NUM_USERS_ADDED is MAX_USERS
+
       system = commandArr[2].toLowerCase()
       newUser = commandArr[3]
 
@@ -53,6 +59,7 @@ class SlackIntegration
         @steam.parseUser(newUser).then (user)=>
           user.slackUser = sendingUser
           @steam.saveUser(user)
+          NUM_USERS_ADDED++
 
       else
         @sendMessage("#{system} is not a supported gaming environment", channel)
@@ -65,7 +72,7 @@ class SlackIntegration
       if users.length > 0
         onlineMessage = 'Users currently in game:'
         for user in users
-          username = @slack.users[user.slackId].name
+          username = @slack.users[user.slackUser].name
           onlineMessage += "\n#{username} is online playing #{user.currentGame}"
           onlineMessage += " (#{user.currentSystem})" if user.currentSystem
         @sendMessage(onlineMessage, channel)
