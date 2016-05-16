@@ -13,6 +13,7 @@ BASE_STEAM_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v000
 FULL_PLAYER_URL = BASE_STEAM_URL + process.env.STEAM_API_KEY + '&steamids='
 
 integrations = []
+usersToCheck = []
 
 init = ->
   console.log '##### Environment variables:'
@@ -21,14 +22,17 @@ init = ->
   console.log '####################'
   integrations.push(new SlackIntegration({token: process.env.SLACK_TOKEN}, User))
 
-  usersToCheck = []
   ((parseUser(user).then (result)-> usersToCheck.push(result)) for user in config.users)
 
   minutes = .1
   the_interval = minutes * 60 * 1000 #10 seconds
   setInterval( (=>
+    tickIntegrations()
     getOnlineUsers(usersToCheck)
   ), the_interval)
+
+tickIntegrations = ->
+  integration.checkOnlineUsers() for integration in integrations
 
 sendNotifications = (user)->
   integration.sendNotification(user.name, user.currentGame) for integration in integrations

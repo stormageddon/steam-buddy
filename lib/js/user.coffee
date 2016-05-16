@@ -7,10 +7,12 @@ class User
     {
       @name
       @id
+      @currentSystem
     } = opts
 
     @inGame = no
     @currentGame = null
+
 
   isPlaying: ->
     return @inGame
