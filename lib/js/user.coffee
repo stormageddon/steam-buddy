@@ -1,7 +1,7 @@
 'use strict'
 
 class User
-  onlineUsers = []
+  User.onlineUsers = []
 
   constructor: (opts)->
     {
@@ -18,11 +18,20 @@ class User
   setInGame: (gameName)->
     @inGame = yes
     @currentGame = gameName
-    onlineUsers.push(this)
+    User.onlineUsers.push(this)
+    console.log 'online users1:', User.onlineUsers
 
   setInactive: ->
+    return if User.onlineUsers.indexOf(this) is -1
+
     @inGame = no
     @currentGame = null
-    onlineUsers.splice(onlineUsers.indexOf(@id), 1)
+    console.log 'removing user'
+
+    User.onlineUsers.splice(User.onlineUsers.indexOf(this), 1)
+
+  @getOnlineUsers: ->
+    console.log 'online users:', User.onlineUsers
+    return User.onlineUsers
 
   module.exports = User

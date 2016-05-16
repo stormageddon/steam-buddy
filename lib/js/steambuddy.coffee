@@ -3,8 +3,8 @@ http = require('http');
 Parser = require('./parser.js');
 config = require('../../config.json');
 parser = new Parser();
-SlackIntegration = require('./integrations/slack_integration.js')
 User = require('./user.js')
+SlackIntegration = require('./integrations/slack_integration.js')
 $q = require('q')
 async = require('async')
 
@@ -19,7 +19,7 @@ init = ->
   console.log '## Slack token:', process.env.SLACK_TOKEN
   console.log '## Steam API Key:', process.env.STEAM_API_KEY
   console.log '####################'
-  integrations.push(new SlackIntegration({token: process.env.SLACK_TOKEN}))
+  integrations.push(new SlackIntegration({token: process.env.SLACK_TOKEN}, User))
 
   usersToCheck = []
   ((parseUser(user).then (result)-> usersToCheck.push(result)) for user in config.users)
