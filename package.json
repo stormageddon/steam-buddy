@@ -1,6 +1,6 @@
 {
   "name": "steam-buddy",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Steam integration for fastchat",
   "main": "steambuddy.js",
   "scripts": {
