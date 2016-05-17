@@ -49,17 +49,17 @@ class SlackIntegration
     console.log 'first arg:', @id
     console.log 'first arg:', commandArr[0] is "@{@id}"
     return if not @id or commandArr[0].indexOf("@#{@id}") is -1
-    commandAction = VALID_COMMANDS[commandArr[1].toUpperCase()]
+    commandAction = VALID_COMMANDS[commandArr[1]?.toUpperCase()]
     return @sendMessage("`#{commandArr[1]}` is not a known command", channel) if not commandAction
 
     if commandAction is VALID_COMMANDS.ADD
 
       return @sendMessage("You already have #{MAX_USERS}. Please upgrade to premium to add more :kappa:", channel) if NUM_USERS_ADDED is MAX_USERS
 
-      system = commandArr[2].toLowerCase()
+      system = commandArr[2]?.toLowerCase()
       newUser = commandArr[3]
 
-      return if not newUser
+      return @sendMessage("Adding a user must be of format `add <system> <username>`", channel) if not newUser
 
       if system is 'steam'
         @steam.parseUser(newUser).then (user)=>
