@@ -30,7 +30,7 @@ class Steam
     request "http://steamcommunity.com/id/#{vanityName}/?xml=1", (error, response, body)=>
       console.log 'error:', error
       console.log 'body:', body
-      console.log 'body index:', body.indexOf "The specified profile could not be found." isnt -1
+      console.log 'body index:', body.indexOf("The specified profile could not be found.") isnt -1
       if body.indexOf("The specified profile could not be found.") isnt -1
         return deferred.reject("Could not find profile matching #{vanityName}")
       parser.parse body, (err, result)->
@@ -58,7 +58,8 @@ class Steam
     deferred = Q.defer()
 
     request url, (error, response, body)->
-      if !error && response?.statusCode is 200
+      console.log 'response:', response
+      if !error && response.statusCode is 200
         parsedResult = JSON.parse(body)
         player = parsedResult.response.players[0]
 
