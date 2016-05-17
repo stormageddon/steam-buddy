@@ -35,7 +35,7 @@ class SlackIntegration
 
     @slack.on 'message', (message)=>
       channel = @slack.getChannelGroupOrDMByID(message.channel)
-      isCommand = message.text.indexOf("@#{@id}") isnt -1
+      isCommand = message?.text?.indexOf("@#{@id}") isnt -1
       return if not isCommand
       @parseCommand(message.text, message.user, channel)
 
