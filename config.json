@@ -2,9 +2,5 @@
   "users": ["Abattoir", "churak", "st1ny"],
   "slack": {
     "message": "#{player} is playing #{game}! Go join them!"
-  },
-  "xbox": {
-    "users": ["2535418176580113", "2533274876010587", "2533274809771124"]
-    "message": "#{player} is playing #{game}! Go join them!"
   }
 }
