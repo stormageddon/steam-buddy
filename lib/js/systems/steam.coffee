@@ -28,8 +28,15 @@ class Steam
   parseUser: (vanityName)->
     deferred = Q.defer()
     request "http://steamcommunity.com/id/#{vanityName}/?xml=1", (error, response, body)=>
+      console.log 'error:', error
+      console.log 'body:', body
+      console.log 'body index:', body.indexOf "The specified profile could not be found." isnt -1
+      if body.indexOf("The specified profile could not be found.") isnt -1
+        return deferred.reject("Could not find profile matching #{vanityName}")
       parser.parse body, (err, result)->
-        deferred.resolve(new User({name: result.name, id: result.id, currentSystem: SYSTEM_NAME})) if not err
+        console.log 'err:', err
+        console.log 'result:', result
+        return deferred.resolve(new User({name: result.name, id: result.id, currentSystem: SYSTEM_NAME})) if not err
 
     deferred.promise
 
@@ -76,8 +83,16 @@ class Steam
     deferred.promise
 
   saveUser: (user)->
+    deferred = Q.defer()
     console.log 'saving:', user
+    for u in @usersToCheck
+      if u.name is user.name
+        console.log 'duplicate'
+        deferred.reject('User already added')
+        return deferred.promise
     @usersToCheck.push(user)
     console.log 'added a user:', @usersToCheck, user
+    deferred.resolve(user.name)
+    deferred.promise
 
   module.exports = Steam

@@ -45,21 +45,32 @@ class SlackIntegration
 
   parseCommand: (command, sendingUser, channel)->
     commandArr = command.split(' ')
-    commandAction = VALID_COMMANDS[commandArr[1].toUpperCase()]
+    console.log 'first arg:', commandArr[0]
+    console.log 'first arg:', @id
+    console.log 'first arg:', commandArr[0] is "@{@id}"
+    return if not @id or commandArr[0].indexOf("@#{@id}") is -1
+    commandAction = VALID_COMMANDS[commandArr[1]?.toUpperCase()]
     return @sendMessage("`#{commandArr[1]}` is not a known command", channel) if not commandAction
 
     if commandAction is VALID_COMMANDS.ADD
 
       return @sendMessage("You already have #{MAX_USERS}. Please upgrade to premium to add more :kappa:", channel) if NUM_USERS_ADDED is MAX_USERS
 
-      system = commandArr[2].toLowerCase()
+      system = commandArr[2]?.toLowerCase()
       newUser = commandArr[3]
+
+      return @sendMessage("Adding a user must be of format `add <system> <username>`", channel) if not newUser
 
       if system is 'steam'
         @steam.parseUser(newUser).then (user)=>
           user.slackUser = sendingUser
           @steam.saveUser(user)
+        .then (username)=>
           NUM_USERS_ADDED++
+          @sendMessage("#{username} has been added successfully.", channel)
+        .catch (err)=>
+          console.log 'error in add user', err
+          @sendMessage(err, channel)
 
       else
         @sendMessage("#{system} is not a supported gaming environment", channel)
