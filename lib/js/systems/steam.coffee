@@ -58,7 +58,7 @@ class Steam
     deferred = Q.defer()
 
     request url, (error, response, body)->
-      if !error && response.statusCode is 200
+      if !error && response?.statusCode is 200
         parsedResult = JSON.parse(body)
         player = parsedResult.response.players[0]
 
