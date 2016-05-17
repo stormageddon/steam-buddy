@@ -45,6 +45,10 @@ class SlackIntegration
 
   parseCommand: (command, sendingUser, channel)->
     commandArr = command.split(' ')
+    console.log 'first arg:', commandArr[0]
+    console.log 'first arg:', @id
+    console.log 'first arg:', commandArr[0] is "@{@id}"
+    return if not @id or commandArr[0].indexOf("@#{@id}") is -1
     commandAction = VALID_COMMANDS[commandArr[1].toUpperCase()]
     return @sendMessage("`#{commandArr[1]}` is not a known command", channel) if not commandAction
 
@@ -54,6 +58,8 @@ class SlackIntegration
 
       system = commandArr[2].toLowerCase()
       newUser = commandArr[3]
+
+      return if not newUser
 
       if system is 'steam'
         @steam.parseUser(newUser).then (user)=>
