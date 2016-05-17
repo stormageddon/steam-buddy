@@ -84,7 +84,7 @@ class SlackIntegration
         onlineMessage = 'Users currently in game:'
         for user in users
           username = @slack.users[user.slackUser].name
-          onlineMessage += "\n#{username} is online playing #{user.currentGame}"
+          onlineMessage += "\n#{username} (#{user.name}) is online playing #{user.currentGame}"
           onlineMessage += " (#{user.currentSystem})" if user.currentSystem
         @sendMessage(onlineMessage, channel)
       else
@@ -94,9 +94,9 @@ class SlackIntegration
   sendMessage: (message, channel)->
     channel.send(message)
 
-  sendNotification: (slackId, game, system)->
-    username = @slack.users[slackId].name
-    message = "@#{username} is playing #{game}"
+  sendNotification: (user, game, system)->
+    username = @slack.users[user.slackUser].name
+    message = "@#{username} (#{user.name}) is playing #{game}"
     message += " on #{system}" if system
     message += ". Go join them!"
     channel.send(message) for channel in @slack_channels
@@ -111,6 +111,6 @@ class SlackIntegration
 
   checkOnlineUsers: ->
     @steam.getOnlineUsers().then (onlineUsers)=>
-      @sendNotification(user.slackUser, user.currentGame, user.currentSystem) for user in onlineUsers
+      @sendNotification(user, user.currentGame, user.currentSystem) for user in onlineUsers
 
   module.exports = SlackIntegration
