@@ -59,7 +59,12 @@ class SlackIntegration
         @steam.parseUser(newUser).then (user)=>
           user.slackUser = sendingUser
           @steam.saveUser(user)
+        .then (username)=>
           NUM_USERS_ADDED++
+          @sendMessage("#{username} has been added successfully.", channel)
+        .catch (err)=>
+          console.log 'error in add user', err
+          @sendMessage(err, channel)
 
       else
         @sendMessage("#{system} is not a supported gaming environment", channel)
