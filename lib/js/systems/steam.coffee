@@ -59,7 +59,7 @@ class Steam
 
     request url, (error, response, body)->
       console.log 'response:', response
-      if !error && response.statusCode is 200
+      if !error && response?.statusCode is 200
         parsedResult = JSON.parse(body)
         player = parsedResult.response.players[0]
 
@@ -77,7 +77,7 @@ class Steam
           deferred.resolve(null)
       else
         console.log 'An error was encountered at', Date.now()
-        console.log 'status code:', response.statusCode
+        console.log 'status code:', response?.statusCode
         console.log 'url:', url
         deferred.reject(error)
 
