@@ -17,11 +17,10 @@ class Postgresql
 
     client = new pg.Client(connectionString)
     client.connect()
-#    client.query("INSERT INTO sb_user(username, steamid, slackid) values('the_mother_confessor', '76561198081408345', 'U053XHPRK')");
 
-  insertUser: (username, steamid, slackid)->
+  insertUser: (username, accountName, steamid, slackid)->
     deferred = Q.defer()
-    insertStr = "INSERT INTO sb_user(username, steamid, slackid) values('#{username}', '#{steamid}', '#{slackid}')";
+    insertStr = "INSERT INTO sb_user(username, steamvanity, steamid, slackid) values('#{username}', '#{accountName}', '#{steamid}', '#{slackid}')";
     client.query insertStr, (err, client, done)=>
       return deferred.reject(error: 'failed to save user: ' + err) if err
       deferred.resolve(message: username + ' saved successfully')
@@ -38,7 +37,14 @@ class Postgresql
       deferred.resolve(users: result.rows)
     deferred.promise
 
-
+  deleteUser: (col, id)->
+    deferred = Q.defer()
+    console.log 'delete user from db'
+    deleteStr = "DELETE FROM ONLY sb_user WHERE #{col}='#{id}';"
+    client.query deleteStr, (err, result)=>
+      return deferred.reject(error: "error deleting #{id} from db") if err
+      deferred.resolve(message: "Successfully deleted #{id} from db")
+    deferred.promise
 
 
   module.exports = Postgresql

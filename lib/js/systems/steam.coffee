@@ -31,7 +31,7 @@ class Steam
     db.getUsersForSystem('steam').then (userRows)->
       users = []
       for user in userRows.users
-        currUser = new User(name: user.username, id: user.steamid)
+        currUser = new User(name: user.username, accountName: user.steamvanity, id: user.steamid)
         currUser.currentSystem = 'steam'
         currUser.slackUser = user.slackid
         users.push(currUser)
@@ -41,15 +41,14 @@ class Steam
   parseUser: (vanityName)->
     deferred = Q.defer()
     request "http://steamcommunity.com/id/#{vanityName}/?xml=1", (error, response, body)=>
-      console.log 'error:', error
-      console.log 'body:', body
-      console.log 'body index:', body.indexOf("The specified profile could not be found.") isnt -1
-      if body.indexOf("The specified profile could not be found.") isnt -1
+      console.log 'error:', error if error
+      console.log 'body index:', body?.indexOf("The specified profile could not be found.") isnt -1
+      if body?.indexOf("The specified profile could not be found.") isnt -1
         return deferred.reject("Could not find profile matching #{vanityName}")
       parser.parse body, (err, result)->
         console.log 'err:', err
         console.log 'result:', result
-        return deferred.resolve(new User({name: result.name, id: result.id, currentSystem: SYSTEM_NAME})) if not err
+        return deferred.resolve(new User({name: result.name, accountName: vanityName, id: result.id, currentSystem: SYSTEM_NAME})) if not err
 
     deferred.promise
 
@@ -99,13 +98,32 @@ class Steam
       if u.name is user.name
         deferred.reject('User already added')
         return deferred.promise
-    db.insertUser(user.name, user.id, user.slackUser).then (result)=>
+    db.insertUser(user.name, user.accountName, user.id, user.slackUser).then (result)=>
       @usersToCheck.push(user)
       deferred.resolve(user.name)
     .catch (err)->
       console.log 'failed: ', err.error
       deferred.reject(err.error)
 
+    deferred.promise
+
+  removeUser: (accountName)->
+    deferred = Q.defer()
+    notFoundMessage = "#{accountName} not found in list of users"
+    userToDelete = null
+
+    for user in @usersToCheck
+      if user.accountName is accountName
+        userToDelete = user
+        @usersToCheck.splice(@usersToCheck.indexOf(userToDelete), 1)
+        break
+
+
+    if userToDelete
+      db.deleteUser('steamid', userToDelete.id).then (result)->
+        deferred.resolve("Successfully removed #{accountName} from watch list")
+    else
+      deferred.reject(notFoundMessage)
     deferred.promise
 
   module.exports = Steam

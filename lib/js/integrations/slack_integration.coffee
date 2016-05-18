@@ -6,7 +6,7 @@ pkg = require('../../../package.json')
 
 class SlackIntegration
   DEFAULT_MESSAGE = '#{player} is playing #{game}. Go join them!'
-  VALID_COMMANDS = { ADD: 'add', ONLINE: 'online' }
+  VALID_COMMANDS = { ADD: 'add', ONLINE: 'online', REMOVE: 'remove' }
 
   # each slack connection needs to store the users it cares about
   usersToCheck = []
@@ -45,15 +45,13 @@ class SlackIntegration
 
   parseCommand: (command, sendingUser, channel)->
     commandArr = command.split(' ')
-    console.log 'first arg:', commandArr[0]
-    console.log 'first arg:', @id
-    console.log 'first arg:', commandArr[0] is "@{@id}"
+
     return if not @id or commandArr[0].indexOf("@#{@id}") is -1
     commandAction = VALID_COMMANDS[commandArr[1]?.toUpperCase()]
     return @sendMessage("`#{commandArr[1]}` is not a known command", channel) if not commandAction
 
+    # ADD command
     if commandAction is VALID_COMMANDS.ADD
-
       return @sendMessage("You already have #{MAX_USERS}. Please upgrade to premium to add more :kappa:", channel) if NUM_USERS_ADDED is MAX_USERS
 
       system = commandArr[2]?.toLowerCase()
@@ -77,6 +75,18 @@ class SlackIntegration
 
       return
 
+    if commandAction is VALID_COMMANDS.REMOVE
+      accountName = commandArr[2]?.toLowerCase()
+      return @sendMessage("Removing a user must be of format `remove <the_username>`", channel) if not accountName
+
+      @steam.removeUser(accountName).then (result)=>
+        @sendMessage "#{result}", channel
+      .catch (err)=>
+        console.log 'error case:', err
+        @sendMessage(err, channel)
+      return
+
+    # ONLINE command
     if commandAction is VALID_COMMANDS.ONLINE
       users = @User.getOnlineUsers()
 
