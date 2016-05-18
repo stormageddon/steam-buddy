@@ -5,12 +5,12 @@ class User
 
   constructor: (opts)->
     {
-      @name
-      @id
+      @name #username
+      @id #steamId
       @currentSystem
     } = opts
 
-    @slackUser = null
+    @slackUser = null #slackId
 
     @inGame = no
     @currentGame = null

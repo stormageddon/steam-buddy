@@ -8,6 +8,8 @@ async = require('async')
 BASE_STEAM_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key='
 FULL_PLAYER_URL = BASE_STEAM_URL + process.env.STEAM_API_KEY + '&steamids='
 SYSTEM_NAME = 'Steam'
+psql = require('../dao/DAO.js').POSTGRESQL
+db = new psql()
 
 class Steam
   parser = new Parser()
@@ -91,9 +93,14 @@ class Steam
         console.log 'duplicate'
         deferred.reject('User already added')
         return deferred.promise
-    @usersToCheck.push(user)
-    console.log 'added a user:', @usersToCheck, user
-    deferred.resolve(user.name)
+    db.insertUser(user.name, user.id, user.slackUser).then (result)=>
+      @usersToCheck.push(user)
+      console.log 'added a user:', @usersToCheck, user
+      deferred.resolve(user.name)
+    .catch (err)->
+      console.log 'failed: ', err.error
+      deferred.reject(err.error)
+
     deferred.promise
 
   module.exports = Steam
