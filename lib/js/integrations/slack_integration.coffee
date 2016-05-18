@@ -31,7 +31,7 @@ class SlackIntegration
       @id = @slack.self.id
       @steam = new Steam(slackTeam: @id)
       @slack_channels = (channel for id, channel of @slack.channels when channel.is_member)
-      #@sendMessage("I'm live! Running version #{pkg.version}", @slack_channels[0])
+      @sendMessage("I'm live! Running version #{pkg.version}", @slack_channels[0])
 
     @slack.on 'message', (message)=>
       channel = @slack.getChannelGroupOrDMByID(message.channel)
