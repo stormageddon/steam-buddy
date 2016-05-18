@@ -1,6 +1,6 @@
 {
   "name": "steam-buddy",
-  "version": "1.2.3",
+  "version": "2.1.0",
   "description": "Steam integration for fastchat",
   "main": "steambuddy.js",
   "scripts": {
@@ -24,6 +24,7 @@
     "async": "^1.4.2",
     "coffee-script": "^1.9.3",
     "hapi": "^12.1.0",
+    "pg": "^4.5.5",
     "q": "^1.4.1",
     "request": "^2.54.0",
     "slack-client": "^1.4.1",

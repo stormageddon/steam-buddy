@@ -8,6 +8,8 @@ async = require('async')
 BASE_STEAM_URL = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key='
 FULL_PLAYER_URL = BASE_STEAM_URL + process.env.STEAM_API_KEY + '&steamids='
 SYSTEM_NAME = 'Steam'
+psql = require('../dao/DAO.js').POSTGRESQL
+db = new psql()
 
 class Steam
   parser = new Parser()
@@ -19,30 +21,39 @@ class Steam
       @slackTeam
     } = opts
 
-    @usersToCheck = @fetchUsers()
+    @usersToCheck = []
+    @fetchUsers().then (users)=>
+      @usersToCheck = users
 
 
   fetchUsers: ->
-    return []
+    deferred = Q.defer()
+    db.getUsersForSystem('steam').then (userRows)->
+      users = []
+      for user in userRows.users
+        currUser = new User(name: user.username, accountName: user.steamvanity, id: user.steamid)
+        currUser.currentSystem = 'steam'
+        currUser.slackUser = user.slackid
+        users.push(currUser)
+      deferred.resolve(users)
+    return deferred.promise
 
   parseUser: (vanityName)->
     deferred = Q.defer()
     request "http://steamcommunity.com/id/#{vanityName}/?xml=1", (error, response, body)=>
-      console.log 'error:', error
-      console.log 'body:', body
-      console.log 'body index:', body.indexOf("The specified profile could not be found.") isnt -1
-      if body.indexOf("The specified profile could not be found.") isnt -1
+      console.log 'error:', error if error
+      console.log 'body index:', body?.indexOf("The specified profile could not be found.") isnt -1
+      if body?.indexOf("The specified profile could not be found.") isnt -1
         return deferred.reject("Could not find profile matching #{vanityName}")
       parser.parse body, (err, result)->
         console.log 'err:', err
         console.log 'result:', result
-        return deferred.resolve(new User({name: result.name, id: result.id, currentSystem: SYSTEM_NAME})) if not err
+        return deferred.resolve(new User({name: result.name, accountName: vanityName, id: result.id, currentSystem: SYSTEM_NAME})) if not err
 
     deferred.promise
 
   getOnlineUsers: ->
     onlineUsers = []
-    console.log 'users to check:', @usersToCheck
     deferred = Q.defer()
     async.each @usersToCheck, (user, callback)=>
       @isUserOnline(user).then (result)->
@@ -58,7 +69,6 @@ class Steam
     deferred = Q.defer()
 
     request url, (error, response, body)->
-      console.log 'response:', response
       if !error && response?.statusCode is 200
         parsedResult = JSON.parse(body)
         player = parsedResult.response.players[0]
@@ -66,7 +76,6 @@ class Steam
         return null if not player
 
         game = player.gameextrainfo
-        console.log "player", player
         if game and not user.isPlaying()
           console.log "setting #{user.name} to in game"
           user.setInGame(game)
@@ -85,15 +94,36 @@ class Steam
 
   saveUser: (user)->
     deferred = Q.defer()
-    console.log 'saving:', user
     for u in @usersToCheck
       if u.name is user.name
-        console.log 'duplicate'
         deferred.reject('User already added')
         return deferred.promise
-    @usersToCheck.push(user)
-    console.log 'added a user:', @usersToCheck, user
-    deferred.resolve(user.name)
+    db.insertUser(user.name, user.accountName, user.id, user.slackUser).then (result)=>
+      @usersToCheck.push(user)
+      deferred.resolve(user.name)
+    .catch (err)->
+      console.log 'failed: ', err.error
+      deferred.reject(err.error)
+
+    deferred.promise
+
+  removeUser: (accountName)->
+    deferred = Q.defer()
+    notFoundMessage = "#{accountName} not found in list of users"
+    userToDelete = null
+
+    for user in @usersToCheck
+      if user.accountName is accountName
+        userToDelete = user
+        @usersToCheck.splice(@usersToCheck.indexOf(userToDelete), 1)
+        break
+
+
+    if userToDelete
+      db.deleteUser('steamid', userToDelete.id).then (result)->
+        deferred.resolve("Successfully removed #{accountName} from watch list")
+    else
+      deferred.reject(notFoundMessage)
     deferred.promise
 
   module.exports = Steam
