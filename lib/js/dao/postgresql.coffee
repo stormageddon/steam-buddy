@@ -28,7 +28,15 @@ class Postgresql
 
     deferred.promise
 
-
+  getUsersForSystem: (system)->
+    deferred = Q.defer()
+    selectStr = ''
+    if system is 'steam'
+      selectStr = "SELECT * FROM sb_user WHERE steamid is not null;"
+    client.query selectStr, (err, result)=>
+      return deferred.reject(error: "error fetching #{system} users") if err
+      deferred.resolve(users: result.rows)
+    deferred.promise
 
 
 

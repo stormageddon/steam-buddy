@@ -95,10 +95,12 @@ class SlackIntegration
     channel.send(message)
 
   sendNotification: (user, game, system)->
+    console.log 'send notification', user, game, system
     username = @slack.users[user.slackUser].name
     message = "@#{username} (#{user.name}) is playing #{game}"
     message += " on #{system}" if system
     message += ". Go join them!"
+    console.log 'sending message to slack channels:', message
     channel.send(message) for channel in @slack_channels
 
   formatMessage: (message, player, game)->

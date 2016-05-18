@@ -21,11 +21,22 @@ class Steam
       @slackTeam
     } = opts
 
-    @usersToCheck = @fetchUsers()
+    @usersToCheck = []
+    @fetchUsers().then (users)=>
+      @usersToCheck = users
 
 
   fetchUsers: ->
-    return []
+    deferred = Q.defer()
+    db.getUsersForSystem('steam').then (userRows)->
+      users = []
+      for user in userRows.users
+        currUser = new User(name: user.username, id: user.steamid)
+        currUser.currentSystem = 'steam'
+        currUser.slackUser = user.slackid
+        users.push(currUser)
+      deferred.resolve(users)
+    return deferred.promise
 
   parseUser: (vanityName)->
     deferred = Q.defer()
@@ -44,7 +55,6 @@ class Steam
 
   getOnlineUsers: ->
     onlineUsers = []
-    console.log 'users to check:', @usersToCheck
     deferred = Q.defer()
     async.each @usersToCheck, (user, callback)=>
       @isUserOnline(user).then (result)->
@@ -60,7 +70,6 @@ class Steam
     deferred = Q.defer()
 
     request url, (error, response, body)->
-      console.log 'response:', response
       if !error && response?.statusCode is 200
         parsedResult = JSON.parse(body)
         player = parsedResult.response.players[0]
@@ -68,7 +77,6 @@ class Steam
         return null if not player
 
         game = player.gameextrainfo
-        console.log "player", player
         if game and not user.isPlaying()
           console.log "setting #{user.name} to in game"
           user.setInGame(game)
@@ -87,15 +95,12 @@ class Steam
 
   saveUser: (user)->
     deferred = Q.defer()
-    console.log 'saving:', user
     for u in @usersToCheck
       if u.name is user.name
-        console.log 'duplicate'
         deferred.reject('User already added')
         return deferred.promise
     db.insertUser(user.name, user.id, user.slackUser).then (result)=>
       @usersToCheck.push(user)
-      console.log 'added a user:', @usersToCheck, user
       deferred.resolve(user.name)
     .catch (err)->
       console.log 'failed: ', err.error
