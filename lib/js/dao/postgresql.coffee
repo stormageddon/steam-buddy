@@ -18,21 +18,22 @@ class Postgresql
     client = new pg.Client(connectionString)
     client.connect()
 
-  insertUser: (username, accountName, steamid, slackid)->
+  insertUser: (username, accountName, steamid, slackid, slacktoken)->
     deferred = Q.defer()
-    insertStr = "INSERT INTO sb_user(username, steamvanity, steamid, slackid) values('#{username}', '#{accountName}', '#{steamid}', '#{slackid}')";
+    insertStr = "INSERT INTO sb_user(username, steamvanity, steamid, slackid, integration_fk) values('#{username}', '#{accountName}', '#{steamid}', '#{slackid}', '#{slacktoken}')";
     client.query insertStr, (err, client, done)=>
       return deferred.reject(error: 'failed to save user: ' + err) if err
       deferred.resolve(message: username + ' saved successfully')
 
     deferred.promise
 
-  getUsersForSystem: (system)->
+  getUsersForToken: (botId, system)->
     deferred = Q.defer()
     selectStr = ''
     if system is 'steam'
-      selectStr = "SELECT * FROM sb_user WHERE steamid is not null;"
+      selectStr = "SELECT * FROM sb_user WHERE steamid is not null AND integration_fk='#{botId}';"
     client.query selectStr, (err, result)=>
+      console.log 'err', err
       return deferred.reject(error: "error fetching #{system} users") if err
       deferred.resolve(users: result.rows)
     deferred.promise
@@ -46,5 +47,13 @@ class Postgresql
       deferred.resolve(message: "Successfully deleted #{id} from db")
     deferred.promise
 
+  getIntegrations: ->
+    deferred = Q.defer()
+    integrationStr = "SELECT * FROM sb_integration;"
+    client.query integrationStr, (err, result)=>
+      return deferred.reject(new Error('Error fetching integrations:')) if err
+      deferred.resolve(result.rows)
+
+    deferred.promise
 
   module.exports = Postgresql

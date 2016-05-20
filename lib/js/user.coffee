@@ -4,8 +4,6 @@ psql = require('./dao/DAO.js').POSTGRESQL
 db = new psql()
 
 class User
-  User.onlineUsers = []
-
   constructor: (opts)->
     {
       @name #username
@@ -14,6 +12,7 @@ class User
       @currentSystem
     } = opts
 
+    @onlineUsers = []
     @slackUser = null #slackId
 
     @inGame = no
@@ -26,18 +25,20 @@ class User
   setInGame: (gameName)->
     @inGame = yes
     @currentGame = gameName
-    User.onlineUsers.push(this)
+    @onlineUsers.push(this)
+    console.log 'pushed to online users', @onlineUsers
 
   setInactive: ->
-    return if User.onlineUsers.indexOf(this) is -1
+    return if @onlineUsers.indexOf(this) is -1
 
     @inGame = no
     @currentGame = null
 
-    User.onlineUsers.splice(User.onlineUsers.indexOf(this), 1)
+    @onlineUsers.splice(@onlineUsers.indexOf(this), 1)
 
   @getOnlineUsers: ->
-    return User.onlineUsers
+    console.log 'instance users', @onlineUsers
+    return @onlineUsers
 
   @removeUser: (username)->
     db.deleteUser(username)
