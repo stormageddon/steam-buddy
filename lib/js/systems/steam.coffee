@@ -15,7 +15,6 @@ class Steam
   parser = new Parser()
   onlineUsers = []
 
-
   constructor: (opts)->
     {
       @slackTeam
@@ -96,10 +95,7 @@ class Steam
 
   saveUser: (user)->
     deferred = Q.defer()
-    #for u in @usersToCheck
-    #  if u.name is user.name
-    #    deferred.reject('User already added')
-    #    return deferred.promise
+
     db.insertUser(user.name, user.accountName, user.id, user.slackUser, @slackToken).then (result)=>
       @usersToCheck.push(user)
       deferred.resolve(user.name)

@@ -11,6 +11,10 @@ class Postgresql
   connectionString = "postgres://#{username}:#{password}@#{url}/#{dbName}";
   client = null
 
+  ERROR_CODES = {
+    '23505': 'User already exists'
+  }
+
   constructor: ->
 
     console.log 'constructing psql connection', connectionString
@@ -22,7 +26,9 @@ class Postgresql
     deferred = Q.defer()
     insertStr = "INSERT INTO sb_user(username, steamvanity, steamid, slackid, integration_fk) values('#{username}', '#{accountName}', '#{steamid}', '#{slackid}', '#{slacktoken}')";
     client.query insertStr, (err, client, done)=>
-      return deferred.reject(error: 'failed to save user: ' + err) if err
+      if err
+        errorMessage = if ERROR_CODES[err.code] then ERROR_CODES[err.code] else ' An unkown error occurred'
+        return deferred.reject(error: 'failed to save user: ' + errorMessage)
       deferred.resolve(message: username + ' saved successfully')
 
     deferred.promise
