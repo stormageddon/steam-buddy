@@ -31,7 +31,7 @@ init = ->
   ), the_interval)
 
 getIntegrations = ->
-  return $q.when([process.env.SLACK_TOKEN]) if process.env.SLACK_TOKEN
+  return $q.when([id: process.env.SLACK_TOKEN]) if process.env.SLACK_TOKEN
 
   db.getIntegrations()
 
