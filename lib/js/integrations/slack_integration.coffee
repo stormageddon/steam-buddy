@@ -32,7 +32,7 @@ class SlackIntegration
       @id = @slack.self.id
       @steam = new Steam({slackTeam: @id, slackToken: @token})
       @slack_channels = (channel for id, channel of @slack.channels when channel.is_member)
-      @sendMessage("I'm live! Running version #{pkg.version}", @slack_channels[0])
+#      @sendMessage("I'm live! Running version #{pkg.version}", @slack_channels[0])
 
     @slack.on 'message', (message)=>
       channel = @slack.getChannelGroupOrDMByID(message.channel)
@@ -112,7 +112,7 @@ class SlackIntegration
 
     message = "@#{username} (#{user.name}) is playing #{game}"
     message += " on #{system}" if system
-    message += ". Go join them!    :: #{@id}"
+    message += ". Go join them!"
     console.log 'sending message to slack channels:', message
     channel.send(message) for channel in @slack_channels
 
