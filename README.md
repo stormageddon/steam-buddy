@@ -73,7 +73,9 @@ The Postgres class in `lib/js/dao/` creates a connection string that is populate
 And that's it! That's all that the postgres instance requires for Steam Buddy to be fully functional.
 
 ## Configuring for Slack
-In order for Steam Buddy to send Slack messages, it needs to be set up as a slack bot. Simply add a new bot integration to your slack team and set the channel(s) that you want Steam Buddy to run on. There are then 2 ways you can add the integration. If you are only going to run Steam Buddy within a single Slack team, you can set the slack token as an environment variable: `export SLACK_TOKEN="abcd-1234-abcd-1234"`. Steam Buddy will read this token in when launched and use it to authenticate into Slack and send messages.
+In order for Steam Buddy to send Slack messages, it needs to be set up as a slack bot. Simply add a new bot integration to your slack team and set the channel(s) that you want Steam Buddy to run on. This is very simple. You can follow the instructions (here)[https://api.slack.com/bot-users] to add a new integration to your channel.
+
+Once you have created the integration, there are then 2 ways you can tell Steam Buddy about the bot. If you are only going to run Steam Buddy within a single Slack team, you can set the slack token as an environment variable: `export SLACK_TOKEN="abcd-1234-abcd-1234"`. Steam Buddy will read this token in when launched and use it to authenticate into Slack and send messages.
 
 The second way to save an integration is to store it within your database. If no `SLACK_TOKEN` environment variable is found, Steam Buddy will read in all the integrations from the `sb_integration` table of your configured database. `sb_integration` must have the following schema:
 
