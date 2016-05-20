@@ -19,16 +19,18 @@ class Steam
   constructor: (opts)->
     {
       @slackTeam
+      @slackToken
     } = opts
 
     @usersToCheck = []
     @fetchUsers().then (users)=>
       @usersToCheck = users
-
+    .catch (err)->
+      console.log 'error fetching:', err
 
   fetchUsers: ->
     deferred = Q.defer()
-    db.getUsersForSystem('steam').then (userRows)->
+    db.getUsersForToken(@slackToken, 'steam').then (userRows)->
       users = []
       for user in userRows.users
         currUser = new User(name: user.username, accountName: user.steamvanity, id: user.steamid)
@@ -94,11 +96,11 @@ class Steam
 
   saveUser: (user)->
     deferred = Q.defer()
-    for u in @usersToCheck
-      if u.name is user.name
-        deferred.reject('User already added')
-        return deferred.promise
-    db.insertUser(user.name, user.accountName, user.id, user.slackUser).then (result)=>
+    #for u in @usersToCheck
+    #  if u.name is user.name
+    #    deferred.reject('User already added')
+    #    return deferred.promise
+    db.insertUser(user.name, user.accountName, user.id, user.slackUser, @slackToken).then (result)=>
       @usersToCheck.push(user)
       deferred.resolve(user.name)
     .catch (err)->
@@ -125,5 +127,8 @@ class Steam
     else
       deferred.reject(notFoundMessage)
     deferred.promise
+
+  getAllSteamUsers: ->
+    return @usersToCheck
 
   module.exports = Steam
