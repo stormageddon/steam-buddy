@@ -8,12 +8,15 @@ Get notified immediately when your friends begin playing a steam game!
 
 ## Using Steam Buddy
 Steam Buddy will run silently, constantly listening for input from either users within your team channel, or for a user to launch a game on one of the supported systems. Interacting with steam buddy is easy - just @ him! Assuming you name your integration steam_buddy, you can:
-`@steam_buddy: add steam my_steam_user` - Adds a steam user for your channel to be notified about.
-`@steam_buddy: remove my_steam_user` - Removes a steam user that your channel was previously being notified about.
-@steam_buddy: online` - Lists any users currently in game.
 
-## ~Configuration (DEPRECATED)~
-~Steam Buddy currently uses a simple configuration file to store information like Slack channels and Steam usernames. An example configuration file:
+`@steam_buddy: add steam my_steam_user` - Adds a steam user for your channel to be notified about.
+
+`@steam_buddy: remove my_steam_user` - Removes a steam user that your channel was previously being notified about.
+
+`@steam_buddy: online` - Lists any users currently in game.
+
+## ~~Configuration (DEPRECATED)~~
+~~Steam Buddy currently uses a simple configuration file to store information like Slack channels and Steam usernames. An example configuration file:
 
     {
       "users": ["user_1", "Steam_User", "Sam_Sample123", "1234567890123456789"],
@@ -31,7 +34,7 @@ Steam Buddy will run silently, constantly listening for input from either users 
 
   `message` - The message that will be sent out to all slack channels Steam Buddy is in. The message must include the `#{player}` and `#{game}` tags. These tags will be replaced with the name of the user signing into a game, and the game that they have launched.
 
-  `channels` - In this section you should list all channels that you want Steam Buddy to send out notifications on. The channels should be a JSON object with the channel name as the id, and a list of Steam Display Names that will be in the messages that are sent out.~
+  `channels` - In this section you should list all channels that you want Steam Buddy to send out notifications on. The channels should be a JSON object with the channel name as the id, and a list of Steam Display Names that will be in the messages that are sent out.~~
 
 ## Configuration for Steam Buddy 2.0
 As of version 2.0, Steam Buddy no longer stores information in a configuration file. Instead, you must run a db. Currently only Postgres is supported, although you can easily make your own db integration and add it to the `DAO` directory.
@@ -40,21 +43,31 @@ The reason Steam Buddy has moved to an actual database is because it allows Stea
 
 ## Setting up Postgres
 The Postgres setup for Steam Buddy is actually very easy. It has 1 required table, and 1 optional table. The required table is `sb_user`, and is where all of the slack users that Steam Buddy is tracking are stored. The schema that you should setup for `sb_user` is this:
+
 ` id |     username     |      steamid      |     steamvanity      |  slackid  |              integration_fk               
 ----+------------------+-------------------+----------------------+-----------+-------------------------------------------`
 
+
 `id: SERIAL, PRIMARY KEY, NOT NULL` - used as the primary key for users
+
 `username: varchar, NOT NULL` - The display name that Steam Buddy will use when sending a message
+
 `steamid: varchar, NOT NULL` - the 64 bit steam id of a user
+
 `steamvanity: varchar` - the vanity name of a user
+
 `slackid: varchar` - This is the bot id of the slack bot integration this user is associated with
+
 `integration_fk: varchar, FOREIGN KEY, NOT NULL` - This is the slack integration token that each user is associated with. If you are using the `sb_integration` table, this is a foreign key reference to it. This should also be set as unique with the steamid, if used.
 
 The Postgres class in `lib/js/dao/` creates a connection string that is populated by environment variables. You must set all of these variables in order for Steam Buddy to connect to the database.
 
 `PSQL_USERNAME` - The username of your PSQL user
+
 `PSQL_PASS` - The password of your PSQL user
+
 `PSQL_URL` - The url of your database (typically just `localhost`)
+
 `PSQL_DB_NAME` - The name of your PSQL database
 
 And that's it! That's all that the postgres instance requires for Steam Buddy to be fully functional.
