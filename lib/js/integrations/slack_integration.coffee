@@ -55,9 +55,13 @@ class SlackIntegration
     if commandAction is VALID_COMMANDS.ADD
       return @sendMessage("You already have #{MAX_USERS}. Please upgrade to premium to add more :kappa:", channel) if NUM_USERS_ADDED is MAX_USERS
 
-      system = commandArr[2]?.toLowerCase()
-      newUser = commandArr[3]
-
+      if commandArr.length == 3
+        system = 'steam'
+        newUser = commandArr[2]
+      else
+        system = commandArr[2]?.toLowerCase()
+        newUser = commandArr[3]
+      
       return @sendMessage("Adding a user must be of format `add <system> <username>`", channel) if not newUser
 
       if system is 'steam'
